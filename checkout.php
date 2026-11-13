@@ -2,7 +2,7 @@
 /**
  * FREUDIAN FASHION SHOP - BILLING & CHECKOUT
  * Payment Schemes: GCash, Visa, Debit Mastercard, Cash on Delivery (COD)
- * Zero JavaScript Architecture • No Product Codes Displayed
+ * Conditional Payment Form in Pure CSS • Zero JavaScript Architecture • No Product Codes
  */
 require_once __DIR__ . '/db.php';
 
@@ -52,7 +52,7 @@ if (!empty($_SESSION['user_id']) && $pdo) {
     } catch (Exception $e) {}
 }
 
-// Handle Order Placement POST
+// Handle Order Placement POST (Pure PHP Processing)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     if (empty($cart_items)) {
         $error_msg = 'Your shopping bag is empty. Please add items before checking out.';
@@ -67,18 +67,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         $order_notes     = trim($_POST['order_notes'] ?? '');
 
         if (empty($customer_name) || empty($customer_email) || empty($customer_phone) || empty($shipping_address) || empty($city)) {
-            $error_msg = 'Please complete all required shipping and contact details.';
+            $error_msg = 'Please complete all required shipping and contact fields.';
         } elseif (!filter_var($customer_email, FILTER_VALIDATE_EMAIL)) {
             $error_msg = 'Please provide a valid email address.';
         } else {
-            // Confirmation Message & Payment Status (Strictly following prompt specification)
-            if (in_array($payment_method, ['gcash', 'visa', 'mastercard'])) {
-                $confirmation_msg = "Order Confirmation! Thank you for shopping with us! Your purchase has been successfully processed.";
-                $payment_status = 'paid';
-            } else {
-                $payment_method = 'cod';
-                $confirmation_msg = "Order Confirmation! Thank you for shopping with us! Please pay once you receive your order.";
+            // Checkout Success Messages:
+            // "Thank you for shopping". If COD is chosen, additionally "Pay when delivered".
+            if ($payment_method === 'cod') {
+                $confirmation_msg = "Thank you for shopping. Pay when delivered.";
                 $payment_status = 'pending_cod';
+            } else {
+                $confirmation_msg = "Thank you for shopping. Your purchase has been successfully processed.";
+                $payment_status = 'paid';
             }
 
             // Generate unique Order Number
@@ -215,9 +215,14 @@ require_once __DIR__ . '/header.php';
         <span class="badge badge-pink" style="margin-bottom: 0.75rem;">Freudian Official Receipt</span>
         <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem; text-transform: uppercase;">Order Confirmed</h1>
 
-        <!-- Mandatory Confirmation Callout -->
+        <!-- Confirmation Callout -->
         <div class="confirmation-callout">
-          <?php echo htmlspecialchars($completed_order['confirmation_message']); ?>
+          <div>Thank you for shopping</div>
+          <?php if ($completed_order['payment_method'] === 'cod'): ?>
+            <div class="cod-pay-reminder">Pay when delivered</div>
+          <?php else: ?>
+            <div style="font-size: 0.95rem; margin-top: 0.5rem; font-weight: 600;">Your purchase has been successfully processed.</div>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -238,7 +243,7 @@ require_once __DIR__ . '/header.php';
               $pm = $completed_order['payment_method'];
               if ($pm === 'gcash') echo '<span class="badge badge-pink">GCash (Paid)</span>';
               elseif ($pm === 'visa') echo '<span class="badge badge-pink">Visa (Paid)</span>';
-              elseif ($pm === 'mastercard') echo '<span class="badge badge-pink">Mastercard (Paid)</span>';
+              elseif ($pm === 'mastercard') echo '<span class="badge badge-pink">Debit Mastercard (Paid)</span>';
               else echo '<span class="badge badge-dark">Cash on Delivery (Pending)</span>';
             ?>
           </div>
@@ -312,7 +317,7 @@ require_once __DIR__ . '/header.php';
          CHECKOUT FORM (Pure HTML5 & CSS3; Zero JavaScript)
          ======================================================= -->
     <div class="breadcrumb">
-      <a href="shopping.php">Freudian Atelier</a>
+      <a href="shopping.php">Freudian</a>
       <span>/</span>
       <a href="cart.php">Shopping Bag</a>
       <span>/</span>
@@ -320,7 +325,7 @@ require_once __DIR__ . '/header.php';
     </div>
 
     <div style="margin-bottom: 2rem; border-bottom: var(--border-width) solid var(--mocha-border); padding-bottom: 1rem;">
-      <div class="badge badge-pink" style="margin-bottom: 0.5rem;">Secure Atelier Checkout</div>
+      <div class="badge badge-pink" style="margin-bottom: 0.5rem;">Secure Boutique Checkout</div>
       <h1 style="font-size: 2.2rem; text-transform: uppercase;">Billing & Delivery</h1>
     </div>
 
@@ -335,10 +340,10 @@ require_once __DIR__ . '/header.php';
 
       <div class="checkout-grid">
 
-        <!-- LEFT: Customer Information & Payment Scheme Selection -->
+        <!-- LEFT: Customer Information & Pure CSS Conditional Payment -->
         <div>
 
-          <!-- Destination & Contact -->
+          <!-- Step 1: Destination & Contact -->
           <div class="checkout-box">
             <h2 class="checkout-section-heading">1. Delivery Destination & Contact</h2>
 
@@ -374,61 +379,71 @@ require_once __DIR__ . '/header.php';
               </div>
 
               <div class="form-full">
-                <label class="form-label" for="order_notes">Delivery Instructions (Optional)</label>
-                <textarea id="order_notes" name="order_notes" class="form-textarea" rows="2" placeholder="Leave at concierge, gate code..."></textarea>
+                <label class="form-label" for="order_notes">Delivery Notes (Optional)</label>
+                <textarea id="order_notes" name="order_notes" class="form-textarea" rows="2" placeholder="Gate access code, preferred delivery time..."></textarea>
               </div>
             </div>
           </div>
 
-          <!-- Payment Scheme Selection (GCash, Visa, Debit Mastercard, COD) -->
+          <!-- Step 2: Payment Scheme Selection (Pure CSS Conditional Display) -->
           <div class="checkout-box">
             <h2 class="checkout-section-heading">2. Select Payment Scheme</h2>
 
-            <div class="payment-selector-pure">
-              <!-- GCash -->
-              <label class="payment-label-card">
-                <input type="radio" name="payment_method" value="gcash" checked>
-                <div class="payment-method-name">GCash Mobile</div>
-                <div class="payment-method-desc">Instant payment via GCash e-wallet (Philippines).</div>
-              </label>
+            <!-- Pure CSS Conditional Payment Container:
+                 Radio inputs placed at root of container so CSS sibling selectors (~)
+                 show/hide card fields without ANY JavaScript! -->
+            <div class="payment-scheme-container">
+              <input type="radio" id="pay_cod" name="payment_method" value="cod" class="payment-option-radio" checked>
+              <input type="radio" id="pay_gcash" name="payment_method" value="gcash" class="payment-option-radio">
+              <input type="radio" id="pay_visa" name="payment_method" value="visa" class="payment-option-radio">
+              <input type="radio" id="pay_mastercard" name="payment_method" value="mastercard" class="payment-option-radio">
 
-              <!-- Visa -->
-              <label class="payment-label-card">
-                <input type="radio" name="payment_method" value="visa">
-                <div class="payment-method-name">Visa Card</div>
-                <div class="payment-method-desc">Verified by Visa online credit or debit transaction.</div>
-              </label>
+              <!-- Clickable Option Cards -->
+              <div class="payment-options-pure-grid">
+                <!-- COD -->
+                <label for="pay_cod" class="payment-option-pure-label">
+                  <div class="payment-option-name">Cash on Delivery (COD)</div>
+                  <div class="payment-option-desc">Pay directly in cash when your courier delivers your package.</div>
+                </label>
 
-              <!-- Debit Mastercard -->
-              <label class="payment-label-card">
-                <input type="radio" name="payment_method" value="mastercard">
-                <div class="payment-method-name">Debit Mastercard</div>
-                <div class="payment-method-desc">Secure debit processing with Mastercard Identity Check.</div>
-              </label>
+                <!-- GCash -->
+                <label for="pay_gcash" class="payment-option-pure-label">
+                  <div class="payment-option-name">GCash Mobile</div>
+                  <div class="payment-option-desc">Instant payment via GCash e-wallet (Philippines).</div>
+                </label>
 
-              <!-- Cash on Delivery (COD) -->
-              <label class="payment-label-card">
-                <input type="radio" name="payment_method" value="cod">
-                <div class="payment-method-name">Cash on Delivery (COD)</div>
-                <div class="payment-method-desc">Pay directly in cash when your courier arrives.</div>
-              </label>
-            </div>
+                <!-- Visa -->
+                <label for="pay_visa" class="payment-option-pure-label">
+                  <div class="payment-option-name">Visa Card</div>
+                  <div class="payment-option-desc">Verified by Visa online credit or debit card processing.</div>
+                </label>
 
-            <!-- Optional Online Payment Fields -->
-            <div style="background-color: var(--sand-surface); border: 1px dashed var(--mocha-border); padding: 1.25rem;">
-              <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.75rem;">
-                Account / Gateway Verification Reference
+                <!-- Debit Mastercard -->
+                <label for="pay_mastercard" class="payment-option-pure-label">
+                  <div class="payment-option-name">Debit Mastercard</div>
+                  <div class="payment-option-desc">Secure debit processing with Mastercard Identity Check.</div>
+                </label>
               </div>
-              <div class="form-grid-2">
-                <div>
-                  <label class="form-label">Account / Cardholder Name</label>
-                  <input type="text" name="pay_ref_name" class="form-input" placeholder="e.g. Peter Paul Basallote">
+
+              <!-- CONDITIONAL PAYMENT FORM:
+                   If COD is chosen, card account fields do NOT appear or become required.
+                   Appears ONLY when GCash, Visa, or Debit Mastercard is selected via pure CSS! -->
+              <div class="conditional-card-details-box">
+                <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.75rem; color: var(--mocha-dark);">
+                  Online Account / Card Verification Reference
                 </div>
-                <div>
-                  <label class="form-label">Account / Card / Mobile Number</label>
-                  <input type="text" name="pay_ref_num" class="form-input" placeholder="09XX-XXX-XXXX or 4532 ••••">
+                <div class="form-grid-2">
+                  <div>
+                    <label class="form-label" for="pay_ref_name">Account / Cardholder Name</label>
+                    <input type="text" id="pay_ref_name" name="pay_ref_name" class="form-input" placeholder="e.g. Peter Paul Basallote">
+                  </div>
+                  <div>
+                    <label class="form-label" for="pay_ref_num">Account / Card / Mobile Number</label>
+                    <input type="text" id="pay_ref_num" name="pay_ref_num" class="form-input" placeholder="09XX-XXX-XXXX or 4532 ••••">
+                  </div>
                 </div>
               </div>
+
             </div>
 
           </div>
@@ -439,7 +454,7 @@ require_once __DIR__ . '/header.php';
         <div>
           <div class="cart-summary-card">
             <h2 style="font-size: 1.35rem; margin-bottom: 1.25rem; border-bottom: var(--border-width) solid var(--mocha-border); padding-bottom: 0.65rem;">
-              Review Selection
+              Order Review
             </h2>
 
             <div style="margin-bottom: 1.25rem; max-height: 260px; overflow-y: auto; padding-right: 0.5rem;">

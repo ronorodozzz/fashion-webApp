@@ -66,7 +66,7 @@ if ($pdo) {
     }
 }
 
-// Seamless fallback to seed catalog in Philippine Pesos (₱)
+// Fallback to Freudian seed catalog in Philippine Pesos (₱)
 if (empty($products)) {
     $products = getFilteredFreudianCatalog($category_filter, '', $search_query, $sort_by);
 }
@@ -78,30 +78,23 @@ require_once __DIR__ . '/header.php';
 <!-- Minimalist Editorial Banner -->
 <section class="catalog-header-banner">
   <div class="container">
-    <div class="catalog-title-row">
-      <div>
-        <div class="badge badge-pink" style="margin-bottom: 0.65rem;">Freudian Atelier Collection</div>
-        <h1 class="catalog-main-title">
-          Minimalist <span>Elegance.</span>
-        </h1>
-        <p style="color: var(--mocha-muted); max-width: 520px; font-size: 0.95rem; margin-top: 0.5rem;">
-          Architectural silhouettes, handcrafted leathers, and refined tailoring. Curated exclusively for discerning patrons.
-        </p>
-      </div>
-
-      <div style="border: var(--border-width) solid var(--mocha-border); padding: 0.85rem 1.25rem; background-color: var(--sand-card); box-shadow: 3px 3px 0 var(--mocha-dark);">
-        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--mocha-muted);">Currency Standard</div>
-        <div style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--mocha-dark);">Philippine Pesos (₱)</div>
-      </div>
+    <div>
+      <div class="badge badge-pink" style="margin-bottom: 0.65rem;">Freudian Boutique Atelier</div>
+      <h1 class="catalog-main-title">
+        Minimalist <span>Elegance.</span>
+      </h1>
+      <p style="color: var(--mocha-muted); max-width: 580px; font-size: 0.95rem; margin-top: 0.5rem;">
+        Architectural silhouettes, handcrafted footwear, and tailored wardrobe essentials. Curated exclusively for registered patrons.
+      </p>
     </div>
   </div>
 </section>
 
 <div class="container">
 
-  <!-- Category & Search Toolbar (Pure HTML Form) -->
+  <!-- Integrated Browsing & Category Navigation Toolbar (Pure HTML) -->
   <div class="catalog-toolbar">
-    <!-- Category Strip -->
+    <!-- Integrated Categories -->
     <div class="filter-categories-strip">
       <a href="shopping.php" class="category-tab-btn <?php echo empty($category_filter) ? 'active' : ''; ?>">
         All Collections
@@ -130,7 +123,7 @@ require_once __DIR__ . '/header.php';
           <input type="hidden" name="category" value="<?php echo htmlspecialchars($category_filter); ?>">
         <?php endif; ?>
 
-        <input type="text" name="search" class="form-input" style="min-width: 240px; padding: 0.5rem 0.85rem;" placeholder="Search by name, fabric..." value="<?php echo htmlspecialchars($search_query); ?>">
+        <input type="text" name="search" class="form-input" style="min-width: 240px; padding: 0.5rem 0.85rem;" placeholder="Search piece, fabric..." value="<?php echo htmlspecialchars($search_query); ?>">
         <button type="submit" class="btn btn-sm btn-dark">Search</button>
         <?php if (!empty($search_query) || !empty($category_filter)): ?>
           <a href="shopping.php" class="btn btn-sm btn-outline">Reset</a>

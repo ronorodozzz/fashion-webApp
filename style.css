@@ -10,7 +10,7 @@
      - Watermelon Pink (#FC75B4): Highlights, CTAs, badges, active states
    ========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap');
 
 :root {
   --sand-bg: #F0E5DB;
@@ -39,7 +39,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  border-radius: 0 !important; /* Strict sharp edge requirement */
+  border-radius: 0 !important; /* Strict sharp edge mandate */
 }
 
 html {
@@ -68,7 +68,7 @@ img {
 a {
   color: var(--mocha-dark);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 a:hover {
@@ -92,17 +92,12 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
 }
 
-.currency-symbol {
-  font-family: var(--font-body);
-  font-weight: 700;
-}
-
 /* ---------------------------------------------------------
-   LAYOUT CONTAINERS
+   STRUCTURAL CONTAINERS
    --------------------------------------------------------- */
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -113,7 +108,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ---------------------------------------------------------
-   HEADER & BRANDING
+   TOP BAR (STRICT SPECIFICATION)
+   Strictly contains: logo.png, "Freudian", user account status, sign out, bag
    --------------------------------------------------------- */
 .site-header {
   background-color: var(--sand-bg);
@@ -127,80 +123,31 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 0;
+  padding: 0.85rem 0;
   gap: 1.5rem;
 }
 
 .brand-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
   text-decoration: none;
 }
 
 .brand-logo-img {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-}
-
-.brand-text-block {
-  display: flex;
-  flex-direction: column;
 }
 
 .brand-title {
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: 1.85rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
-  color: var(--mocha-dark);
-  text-transform: uppercase;
-  line-height: 1.05;
-}
-
-.brand-title span {
-  color: var(--pink-accent);
-}
-
-.brand-subtitle {
-  font-size: 0.65rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--mocha-muted);
-  font-weight: 700;
-  margin-top: 1px;
-}
-
-.header-nav {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.nav-link {
-  font-size: 0.8rem;
-  text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-weight: 700;
   color: var(--mocha-dark);
-  padding: 0.35rem 0.2rem;
-  position: relative;
-}
-
-.nav-link:hover, .nav-link.active {
-  color: var(--pink-accent);
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--pink-accent);
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .header-actions {
@@ -213,7 +160,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.8rem;
   color: var(--mocha-muted);
   border-left: 1px solid var(--mocha-light);
-  padding-left: 0.75rem;
+  padding-left: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -310,7 +257,6 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--pink-accent);
   color: var(--mocha-dark);
   box-shadow: 4px 4px 0 var(--mocha-dark);
-  transform: translate(-1px, -1px);
 }
 
 .btn-outline {
@@ -389,17 +335,11 @@ h1, h2, h3, h4, h5, h6 {
   color: #155724;
 }
 
-.alert-info {
-  background-color: var(--pink-subtle);
-  border-left: 6px solid var(--pink-accent);
-  color: var(--mocha-dark);
-}
-
 /* ---------------------------------------------------------
    AUTHENTICATION HUB (index.php)
    --------------------------------------------------------- */
 .auth-wrapper {
-  max-width: 500px;
+  max-width: 480px;
   margin: 3.5rem auto;
   background-color: var(--sand-card);
   border: var(--border-width) solid var(--mocha-border);
@@ -446,8 +386,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .auth-logo-center {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   margin: 0 auto 0.75rem;
   object-fit: contain;
 }
@@ -501,25 +441,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ---------------------------------------------------------
-   CATALOG TOOLBAR & GRID (shopping.php)
+   CATALOG BROWSING & INTEGRATED CATEGORIES (shopping.php)
    --------------------------------------------------------- */
 .catalog-header-banner {
-  padding: 2.75rem 0 2rem;
+  padding: 2.5rem 0 1.75rem;
   border-bottom: var(--border-width) solid var(--mocha-border);
   margin-bottom: 2rem;
-  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(240, 229, 219, 0) 100%);
-}
-
-.catalog-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 1.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(240, 229, 219, 0) 100%);
 }
 
 .catalog-main-title {
-  font-size: 2.6rem;
+  font-size: 2.5rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -543,6 +475,7 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 4px 4px 0 var(--mocha-dark);
 }
 
+/* Integrated Category Navigation (Browsing Layout) */
 .filter-categories-strip {
   display: flex;
   flex-wrap: wrap;
@@ -592,7 +525,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-wrap: wrap;
 }
 
-/* Product Cards */
+/* Product Cards Grid */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -711,6 +644,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ---------------------------------------------------------
    PRODUCT DETAIL & PURE CSS IMAGE COLLAGE (product-detail.php)
+   (No marketing subtitles or headers)
    --------------------------------------------------------- */
 .breadcrumb {
   display: flex;
@@ -734,7 +668,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .product-detail-grid {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 2.75rem;
   align-items: flex-start;
 }
@@ -761,22 +695,6 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 
-.collage-caption-tag {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: var(--mocha-dark);
-  color: var(--sand-bg);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.35rem 0.75rem;
-  border-top: 1px solid var(--mocha-border);
-  border-right: 1px solid var(--mocha-border);
-}
-
-/* Gallery Collage Subgrid for multiple variations */
 .collage-subgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -800,10 +718,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .collage-subframe:hover img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-/* Product Info Right Column */
+/* Product Info Column */
 .product-info-card {
   background-color: var(--sand-card);
   border: var(--border-width) solid var(--mocha-border);
@@ -875,37 +793,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .schedule-table tr:last-child td {
   border-bottom: none;
-}
-
-/* Size Radio Selector (Pure CSS) */
-.size-selector-pure {
-  margin-bottom: 1.5rem;
-}
-
-.size-options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.size-radio-row {
-  display: flex;
-  align-items: center;
-  padding: 0.65rem 0.85rem;
-  border: var(--border-width) solid var(--mocha-border);
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  justify-content: space-between;
-}
-
-.size-radio-row:hover {
-  background-color: var(--sand-surface);
-}
-
-.size-radio-row input[type="radio"] {
-  accent-color: var(--pink-accent);
-  margin-right: 0.75rem;
 }
 
 /* ---------------------------------------------------------
@@ -1026,7 +913,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ---------------------------------------------------------
-   CHECKOUT & PAYMENT METHODS (checkout.php)
+   CHECKOUT & PURE CSS CONDITIONAL PAYMENT (checkout.php)
    --------------------------------------------------------- */
 .checkout-grid {
   display: grid;
@@ -1060,49 +947,81 @@ h1, h2, h3, h4, h5, h6 {
   grid-column: 1 / -1;
 }
 
-/* Pure CSS Payment Scheme Tabs */
-.payment-selector-pure {
+/* Pure CSS Conditional Payment Selector */
+.payment-scheme-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.payment-options-pure-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
-.payment-label-card {
+.payment-option-pure-label {
   border: var(--border-width) solid var(--mocha-border);
-  padding: 1.25rem;
+  padding: 1.15rem;
   background-color: var(--sand-surface);
   cursor: pointer;
-  display: block;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
-.payment-label-card:hover {
+.payment-option-pure-label:hover {
   background-color: #fff;
 }
 
-.payment-label-card input[type="radio"] {
-  accent-color: var(--pink-accent);
-  margin-bottom: 0.5rem;
+.payment-option-radio {
+  display: none;
 }
 
-.payment-method-name {
+/* Visual highlights for pure CSS radio tabs */
+#pay_cod:checked ~ .payment-options-pure-grid label[for="pay_cod"],
+#pay_gcash:checked ~ .payment-options-pure-grid label[for="pay_gcash"],
+#pay_visa:checked ~ .payment-options-pure-grid label[for="pay_visa"],
+#pay_mastercard:checked ~ .payment-options-pure-grid label[for="pay_mastercard"] {
+  background-color: var(--pink-subtle);
+  border-color: var(--mocha-border);
+  box-shadow: 3px 3px 0 var(--mocha-dark);
+}
+
+.payment-option-name {
   font-size: 0.95rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 0.25rem;
   color: var(--mocha-dark);
 }
 
-.payment-method-desc {
+.payment-option-desc {
   font-size: 0.78rem;
   color: var(--mocha-muted);
   line-height: 1.4;
 }
 
-/* Order Confirmation Display */
+/* Conditional Online Payment Details:
+   Hidden by default or when COD is selected;
+   Shown ONLY when GCash, Visa, or Mastercard is selected! */
+.conditional-card-details-box {
+  display: none;
+  background-color: var(--sand-surface);
+  border: 1px dashed var(--mocha-border);
+  padding: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+#pay_gcash:checked ~ .conditional-card-details-box,
+#pay_visa:checked ~ .conditional-card-details-box,
+#pay_mastercard:checked ~ .conditional-card-details-box {
+  display: block;
+}
+
+/* Confirmation Container */
 .confirmation-container {
   background-color: var(--sand-card);
   border: var(--border-thick) solid var(--mocha-border);
@@ -1120,14 +1039,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .confirmation-callout {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   padding: 1.25rem;
   background-color: var(--pink-subtle);
   border: var(--border-width) solid var(--pink-accent);
   color: var(--mocha-dark);
   line-height: 1.5;
   margin-top: 1rem;
+}
+
+.cod-pay-reminder {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #c92a2a;
+  background-color: #fff;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--mocha-border);
 }
 
 .order-meta-grid {
@@ -1177,7 +1107,7 @@ h1, h2, h3, h4, h5, h6 {
   .catalog-main-title {
     font-size: 2rem;
   }
-  .form-grid-2, .payment-selector-pure, .order-meta-grid {
+  .form-grid-2, .payment-options-pure-grid, .order-meta-grid {
     grid-template-columns: 1fr;
   }
 }

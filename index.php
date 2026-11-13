@@ -149,7 +149,7 @@ require_once __DIR__ . '/header.php';
 
     <div class="auth-card-body">
       <div class="auth-header">
-        <img src="totoro.png" alt="Freudian Logo" class="auth-logo-center">
+        <img src="logo.png" alt="Freudian Logo" class="auth-logo-center">
         <h1 class="auth-title">Freudian Fashion</h1>
         <p class="auth-subtitle">Minimalist Luxury Wardrobe Atelier</p>
       </div>

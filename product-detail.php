@@ -71,7 +71,7 @@ if (!$product) {
     $sizes   = $fallbackItem['sizes'] ?? [];
 }
 
-$page_title = $product ? htmlspecialchars($product['name']) : 'Piece Not Found';
+$page_title = $product ? htmlspecialchars($product['name']) : 'Piece';
 require_once __DIR__ . '/header.php';
 ?>
 
@@ -79,7 +79,7 @@ require_once __DIR__ . '/header.php';
 
   <!-- Breadcrumb Navigation (No Product Codes) -->
   <nav class="breadcrumb">
-    <a href="shopping.php">Freudian Atelier</a>
+    <a href="shopping.php">Freudian</a>
     <span>/</span>
     <a href="shopping.php?category=<?php echo urlencode($product['category_slug'] ?? 'male_apparel'); ?>">
       <?php echo htmlspecialchars($product['category_name'] ?? 'Collection'); ?>
@@ -90,15 +90,12 @@ require_once __DIR__ . '/header.php';
 
   <div class="product-detail-grid">
 
-    <!-- LEFT: PURE CSS IMAGE COLLAGE (All AVIF picture variations together in one layout; ZERO JS) -->
+    <!-- LEFT: PURE CSS IMAGE COLLAGE (All AVIF picture variations together in one layout; ZERO JS; No marketing subtitles) -->
     <div class="pure-css-collage">
-      <!-- Primary Feature Collage Image -->
+      <!-- Main Feature Collage Frame -->
       <div class="collage-frame-main">
         <img src="<?php echo htmlspecialchars($images[0]['image_path'] ?? $product['primary_image']); ?>" 
-             alt="<?php echo htmlspecialchars($product['name']); ?> Primary Angle">
-        <div class="collage-caption-tag">
-          Primary Perspective • Angle 1
-        </div>
+             alt="<?php echo htmlspecialchars($product['name']); ?>">
       </div>
 
       <!-- Additional Variations Collage Subgrid -->
@@ -107,18 +104,11 @@ require_once __DIR__ . '/header.php';
           <?php for ($i = 1; $i < count($images); $i++): ?>
             <div class="collage-subframe">
               <img src="<?php echo htmlspecialchars($images[$i]['image_path']); ?>" 
-                   alt="<?php echo htmlspecialchars($product['name']); ?> Variation <?php echo $i + 1; ?>">
-              <div class="collage-caption-tag">
-                <?php echo htmlspecialchars($images[$i]['caption'] ?? ('Perspective Angle ' . ($i + 1))); ?>
-              </div>
+                   alt="<?php echo htmlspecialchars($product['name']); ?> Angle <?php echo $i + 1; ?>">
             </div>
           <?php endfor; ?>
         </div>
       <?php endif; ?>
-
-      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mocha-muted); text-align: center; border: 1px dashed var(--mocha-light); padding: 0.5rem;">
-        Pure CSS Architectural Collage • High-Fidelity .avif Asset Inspection
-      </div>
     </div>
 
     <!-- RIGHT: Product Information, Size-Based Pricing & Bag Submission -->
@@ -141,7 +131,7 @@ require_once __DIR__ . '/header.php';
         </div>
         <?php if (!empty($product['has_size_pricing'])): ?>
           <span style="font-size: 0.75rem; color: var(--pink-hover); font-weight: 700; text-transform: uppercase;">
-            Base Size Starting Rate
+            Base Starting Rate
           </span>
         <?php endif; ?>
       </div>
@@ -162,7 +152,7 @@ require_once __DIR__ . '/header.php';
               <tr>
                 <th>Proportion / Size</th>
                 <th>Tailoring Price</th>
-                <th>Availability</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -179,7 +169,7 @@ require_once __DIR__ . '/header.php';
       <?php endif; ?>
 
       <!-- Purchase Form (Pure HTML5 & PHP; Zero JavaScript) -->
-      <form method="POST" action="cart.php" class="size-selector-pure">
+      <form method="POST" action="cart.php">
         <input type="hidden" name="cart_action" value="add">
         <input type="hidden" name="product_id" value="<?php echo (int)$product['id']; ?>">
         <input type="hidden" name="product_name" value="<?php echo htmlspecialchars($product['name']); ?>">
@@ -187,7 +177,7 @@ require_once __DIR__ . '/header.php';
 
         <div style="margin-bottom: 1.25rem;">
           <label class="form-label" for="selected_size_option">
-            Select Your Size & Proportion:
+            Select Your Size:
           </label>
           <select name="selected_size_package" id="selected_size_option" class="form-select" required style="padding: 0.8rem; font-weight: 700;">
             <?php foreach ($sizes as $idx => $sizeOption): 
@@ -212,11 +202,9 @@ require_once __DIR__ . '/header.php';
         </div>
       </form>
 
-      <!-- Atelier Craft Specifications -->
+      <!-- Craft Specifications -->
       <div style="border-top: 1px solid var(--mocha-light); padding-top: 1.25rem; font-size: 0.8rem; color: var(--mocha-muted); line-height: 1.6;">
-        <div>• <strong>Sharp Architectural Tailoring:</strong> Hand-cut 90-degree lines and seamless finishes.</div>
-        <div>• <strong>All-Angle Verified:</strong> Multi-version .avif imagery captured under calibrated studio lights.</div>
-        <div>• <strong>Payment Flexibility:</strong> Settle via GCash, Visa, Debit Mastercard, or Cash on Delivery (COD).</div>
+        <div>• <strong>Payment Methods Accepted:</strong> GCash, Visa, Debit Mastercard, and Cash on Delivery (COD).</div>
       </div>
 
     </div>
