@@ -1,32 +1,39 @@
 <?php
 /**
- * TREND & FASHION BOUTIQUE SHOP - SHOPPING CART
- * Session-based itemized shopping cart, size-specific pricing, and total calculations
+ * FREUDIAN FASHION SHOP - SHOPPING CART
+ * Itemized Selections, Quantities, Sizes, and Total Calculations in Philippine Pesos (₱)
+ * Zero JavaScript Architecture • No Product Codes Displayed
  */
 require_once __DIR__ . '/db.php';
 
-// Initialize session cart structure if not present
+// Strict Guard: Unauthenticated users are strictly barred from browsing
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php?msg=auth_required');
+    exit;
+}
+
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-$notice_msg = '';
-
-// Handle Cart Actions (Add, Update, Remove, Clear)
+// Handle Cart Actions (Pure PHP Forms)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cart_action = $_POST['cart_action'] ?? '';
 
     if ($cart_action === 'add') {
         $product_id   = (int)($_POST['product_id'] ?? 0);
-        $product_code = trim($_POST['product_code'] ?? '');
         $product_name = trim($_POST['product_name'] ?? '');
-        $selected_size= trim($_POST['selected_size'] ?? 'Standard');
-        $unit_price   = (float)($_POST['unit_price'] ?? 0.00);
-        $quantity     = max(1, (int)($_POST['quantity'] ?? 1));
         $primary_image= trim($_POST['primary_image'] ?? 'assets/men_bag_1_version_1.avif');
+        $quantity     = max(1, (int)($_POST['quantity'] ?? 1));
 
-        // Create composite key for unique combination of product + selected size
-        $item_key = $product_id . '_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $selected_size);
+        // Format: "SizeName|Price"
+        $size_package = trim($_POST['selected_size_package'] ?? 'One Size|0');
+        $parts = explode('|', $size_package);
+        $size_name = $parts[0] ?? 'Standard';
+        $unit_price = isset($parts[1]) ? (float)$parts[1] : 0.00;
+
+        // Composite key per product + size combination
+        $item_key = $product_id . '_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $size_name);
 
         if (isset($_SESSION['cart'][$item_key])) {
             $_SESSION['cart'][$item_key]['quantity'] += $quantity;
@@ -34,16 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['cart'][$item_key] = [
                 'item_key'     => $item_key,
                 'product_id'   => $product_id,
-                'product_code' => $product_code,
                 'name'         => $product_name,
-                'size'         => $selected_size,
+                'size'         => $size_name,
                 'unit_price'   => $unit_price,
                 'quantity'     => $quantity,
                 'image'        => $primary_image
             ];
         }
 
-        header('Location: cart.php?item_added=1');
+        header('Location: cart.php');
         exit;
     } elseif ($cart_action === 'update') {
         $item_key = $_POST['item_key'] ?? '';
@@ -58,86 +64,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         header('Location: cart.php');
         exit;
-    }
-}
-
-// Handle GET Actions (Remove, Clear)
-if (isset($_GET['action'])) {
-    if ($_GET['action'] === 'remove' && !empty($_GET['key'])) {
-        $remove_key = $_GET['key'];
-        if (isset($_SESSION['cart'][$remove_key])) {
-            unset($_SESSION['cart'][$remove_key]);
+    } elseif ($cart_action === 'remove') {
+        $item_key = $_POST['item_key'] ?? '';
+        if (isset($_SESSION['cart'][$item_key])) {
+            unset($_SESSION['cart'][$item_key]);
         }
         header('Location: cart.php');
         exit;
-    } elseif ($_GET['action'] === 'clear') {
+    } elseif ($cart_action === 'clear') {
         $_SESSION['cart'] = [];
         header('Location: cart.php');
         exit;
     }
 }
 
-// Calculate Calculations
+// Compute Totals in Philippine Pesos (₱)
 $subtotal = 0.00;
-$total_items_count = 0;
+$total_quantity = 0;
 
 foreach ($_SESSION['cart'] as $item) {
     $item_total = (float)$item['unit_price'] * (int)$item['quantity'];
     $subtotal += $item_total;
-    $total_items_count += (int)$item['quantity'];
+    $total_quantity += (int)$item['quantity'];
 }
 
-$free_shipping_threshold = 150.00;
-$standard_shipping_rate  = ($subtotal > 0 && $subtotal < $free_shipping_threshold) ? 15.00 : 0.00;
-$grand_total = $subtotal + $standard_shipping_rate;
+$free_shipping_threshold = 3000.00;
+$shipping_fee = ($subtotal > 0 && $subtotal < $free_shipping_threshold) ? 150.00 : 0.00;
+$grand_total = $subtotal + $shipping_fee;
 
-$page_title = 'Shopping Bag (' . $total_items_count . ')';
+$page_title = 'Shopping Bag (' . $total_quantity . ')';
 require_once __DIR__ . '/header.php';
 ?>
 
 <div class="container" style="padding-top: 2rem;">
 
   <div class="breadcrumb">
-    <a href="shopping.php">Atelier</a>
+    <a href="shopping.php">Freudian Atelier</a>
     <span>/</span>
     <span>Shopping Bag</span>
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: var(--border-width) solid var(--mocha-border); padding-bottom: 1rem;">
     <div>
-      <div class="badge badge-pink" style="margin-bottom: 0.5rem;">Curated Selection</div>
+      <div class="badge badge-pink" style="margin-bottom: 0.5rem;">Curated Selections</div>
       <h1 style="font-size: 2.2rem; text-transform: uppercase;">Your Shopping Bag</h1>
     </div>
-    <div>
-      <span style="font-size: 0.9rem; color: var(--mocha-muted);">
-        Total Items: <strong><?php echo $total_items_count; ?></strong>
-      </span>
+    <div style="font-size: 0.9rem; color: var(--mocha-muted);">
+      Total Pieces: <strong><?php echo $total_quantity; ?></strong>
     </div>
   </div>
 
-  <?php if (isset($_GET['item_added'])): ?>
-    <div class="alert alert-success">
-      <strong>Item added to bag!</strong> Your size selection and price adjustments have been recorded.
-    </div>
-  <?php endif; ?>
-
   <?php if (empty($_SESSION['cart'])): ?>
-    <!-- Empty Cart State -->
-    <div class="cart-items-panel" style="text-align: center; padding: 4.5rem 2rem;">
-      <h2 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Your Bag is Currently Empty</h2>
-      <p style="color: var(--mocha-muted); max-width: 450px; margin: 0 auto 2rem; font-size: 0.95rem;">
-        Discover our architectural apparel, hand-burnished footwear, and minimalist leather accessories.
+    <div class="cart-table-panel" style="text-align: center; padding: 4.5rem 2rem;">
+      <h2 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Your Shopping Bag is Empty</h2>
+      <p style="color: var(--mocha-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 0.95rem;">
+        Browse our tailored apparel, handcrafted shoes, and minimalist leather bags.
       </p>
       <a href="shopping.php" class="btn btn-primary btn-lg">
-        Explore Catalog
+        Explore Collections
       </a>
     </div>
   <?php else: ?>
-    <!-- Populated Cart Table & Summary -->
-    <div class="cart-layout">
+    <div class="cart-layout-grid">
 
-      <!-- LEFT: Items Table -->
-      <div class="cart-items-panel">
+      <!-- LEFT: Items Table (NO Product Codes Displayed) -->
+      <div class="cart-table-panel">
         <table class="cart-table">
           <thead>
             <tr>
@@ -146,7 +137,7 @@ require_once __DIR__ . '/header.php';
               <th>Unit Price</th>
               <th>Quantity</th>
               <th>Subtotal</th>
-              <th></th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -159,103 +150,108 @@ require_once __DIR__ . '/header.php';
                     <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" class="cart-item-thumb">
                     <div>
                       <div class="cart-item-title">
-                        <a href="product-detail.php?code=<?php echo urlencode($item['product_code']); ?>">
+                        <a href="product-detail.php?id=<?php echo (int)$item['product_id']; ?>">
                           <?php echo htmlspecialchars($item['name']); ?>
                         </a>
-                      </div>
-                      <div class="cart-item-meta">
-                        <span class="badge badge-dark"><?php echo htmlspecialchars($item['product_code']); ?></span>
                       </div>
                     </div>
                   </div>
                 </td>
 
                 <td>
-                  <span class="cart-item-size-badge">
-                    <?php echo htmlspecialchars($item['size']); ?>
+                  <span class="cart-size-pill">
+                    Size <?php echo htmlspecialchars($item['size']); ?>
                   </span>
                 </td>
 
                 <td>
-                  <strong>$<?php echo number_format($item['unit_price'], 2); ?></strong>
+                  <strong><?php echo formatPeso($item['unit_price']); ?></strong>
                 </td>
 
                 <td>
-                  <form method="POST" action="cart.php" class="cart-qty-form">
+                  <form method="POST" action="cart.php" class="cart-qty-form-pure">
                     <input type="hidden" name="cart_action" value="update">
                     <input type="hidden" name="item_key" value="<?php echo htmlspecialchars($key); ?>">
-                    <button type="submit" name="quantity" value="<?php echo $item['quantity'] - 1; ?>" class="cart-qty-btn" title="Decrease">-</button>
-                    <span class="cart-qty-val"><?php echo (int)$item['quantity']; ?></span>
-                    <button type="submit" name="quantity" value="<?php echo $item['quantity'] + 1; ?>" class="cart-qty-btn" title="Increase">+</button>
+                    <input type="number" name="quantity" value="<?php echo (int)$item['quantity']; ?>" min="1" max="50" class="cart-qty-input-pure">
+                    <button type="submit" class="btn btn-sm btn-outline" style="padding: 0.35rem 0.6rem;">Update</button>
                   </form>
                 </td>
 
                 <td>
-                  <span class="cart-line-price">
-                    $<?php echo number_format($line_total, 2); ?>
-                  </span>
+                  <strong style="font-family: var(--font-display); font-size: 1.05rem;">
+                    <?php echo formatPeso($line_total); ?>
+                  </strong>
                 </td>
 
                 <td>
-                  <a href="cart.php?action=remove&key=<?php echo urlencode($key); ?>" class="btn-remove-item" title="Remove item from bag">&times;</a>
+                  <form method="POST" action="cart.php">
+                    <input type="hidden" name="cart_action" value="remove">
+                    <input type="hidden" name="item_key" value="<?php echo htmlspecialchars($key); ?>">
+                    <button type="submit" class="btn btn-sm btn-outline" style="color: #c92a2a; border-color: #c92a2a;" title="Remove this item">Remove</button>
+                  </form>
                 </td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
 
-        <!-- Bottom Cart Actions -->
-        <div class="cart-actions-bar">
+        <!-- Bottom Actions -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: var(--border-width) solid var(--mocha-border); padding-top: 1rem;">
           <a href="shopping.php" class="btn btn-outline btn-sm">
             &larr; Continue Shopping
           </a>
 
-          <a href="cart.php?action=clear" class="btn btn-outline btn-sm" onclick="return confirm('Are you sure you want to clear your entire bag?');">
-            Clear Entire Bag
-          </a>
+          <form method="POST" action="cart.php">
+            <input type="hidden" name="cart_action" value="clear">
+            <button type="submit" class="btn btn-outline btn-sm">
+              Clear Entire Bag
+            </button>
+          </form>
         </div>
       </div>
 
-      <!-- RIGHT: Order Summary -->
-      <div class="order-summary-box">
-        <h2 class="summary-heading">Order Summary</h2>
+      <!-- RIGHT: Order Summary (Philippine Pesos ₱) -->
+      <div class="cart-summary-card">
+        <h2 style="font-size: 1.35rem; margin-bottom: 1.25rem; border-bottom: var(--border-width) solid var(--mocha-border); padding-bottom: 0.65rem;">
+          Order Summary
+        </h2>
 
         <div class="summary-row">
           <span>Items Subtotal</span>
-          <span>$<?php echo number_format($subtotal, 2); ?></span>
+          <span><?php echo formatPeso($subtotal); ?></span>
         </div>
 
         <div class="summary-row">
-          <span>Worldwide Shipping</span>
+          <span>Nationwide Shipping</span>
           <span>
-            <?php if ($standard_shipping_rate === 0.00): ?>
+            <?php if ($shipping_fee === 0.00): ?>
               <strong style="color: var(--pink-hover);">COMPLIMENTARY</strong>
             <?php else: ?>
-              $<?php echo number_format($standard_shipping_rate, 2); ?>
+              <?php echo formatPeso($shipping_fee); ?>
             <?php endif; ?>
           </span>
         </div>
 
         <?php if ($subtotal < $free_shipping_threshold): ?>
-          <div style="font-size: 0.72rem; color: var(--mocha-muted); margin-bottom: 1rem; background-color: var(--sand-surface); padding: 0.5rem; border: 1px dashed var(--mocha-border);">
-            Add <strong>$<?php echo number_format($free_shipping_threshold - $subtotal, 2); ?></strong> more to unlock complimentary worldwide shipping!
+          <div style="font-size: 0.75rem; color: var(--mocha-muted); margin-bottom: 1rem; background-color: var(--sand-surface); padding: 0.65rem; border: 1px dashed var(--mocha-border);">
+            Add <strong><?php echo formatPeso($free_shipping_threshold - $subtotal); ?></strong> more to qualify for complimentary nationwide shipping!
           </div>
         <?php endif; ?>
 
         <div class="summary-row total-row">
-          <span>Estimated Total</span>
-          <span class="total-amount">$<?php echo number_format($grand_total, 2); ?></span>
+          <span>Total to Settle</span>
+          <span class="total-amount-val"><?php echo formatPeso($grand_total); ?></span>
         </div>
 
-        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="margin-top: 1.5rem;">
           <a href="checkout.php" class="btn btn-primary btn-full btn-lg">
             Proceed to Checkout &rarr;
           </a>
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--mocha-light); padding-top: 1rem; font-size: 0.75rem; color: var(--mocha-muted); line-height: 1.5;">
-          • Choose between <strong>Cash on Delivery (COD)</strong> or <strong>Credit Card</strong> at next step.<br>
-          • All boutique orders are insured and tracked.
+          • Supported Payments: <strong>GCash, Visa, Debit Mastercard, Cash on Delivery (COD)</strong>.<br>
+          • All boutique items are packaged in signature Freudian dust covers.
         </div>
       </div>
 
