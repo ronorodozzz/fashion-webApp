@@ -16,6 +16,11 @@ $success_msg = '';
 
 $active_tab = $_GET['tab'] ?? 'login';
 
+if (isset($_GET['registered'])) {
+    $success_msg = 'Account created successfully! Please sign in using your credentials to begin browsing.';
+    $active_tab = 'login';
+}
+
 if (isset($_GET['msg'])) {
     if ($_GET['msg'] === 'logged_out') {
         $success_msg = 'You have been successfully signed out of Freudian Fashion Shop.';
@@ -53,15 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error_msg = 'Invalid username/email or password. Please try again.';
                 }
             } else {
-                // In-memory authentication fallback if database is starting
-                if ($login_id === 'customer' && $password === 'password') {
-                    $_SESSION['user_id'] = 1;
-                    $_SESSION['user_name'] = 'Boutique Member';
-                    $_SESSION['user_email'] = 'member@freudian.com';
-                    header('Location: shopping.php');
-                    exit;
-                }
-                $error_msg = 'Database connection is temporarily inactive. Please ensure MySQL is started in XAMPP.';
+                $error_msg = 'Unable to connect to the database. Please ensure MySQL is running in XAMPP.';
             }
         }
     } elseif ($auth_action === 'register') {
@@ -108,24 +105,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
 
                     if ($res) {
-                        $newId = $pdo->lastInsertId();
-                        $_SESSION['user_id'] = $newId;
-                        $_SESSION['user_name'] = $full_name;
-                        $_SESSION['user_email'] = $email;
-
-                        header('Location: shopping.php');
+                        // Registration Flow: Upon successful account creation, do NOT automatically log the user in
+                        // Redirect directly to the login form to prompt manual sign-in
+                        header('Location: index.php?tab=login&registered=1');
                         exit;
                     } else {
                         $error_msg = 'An error occurred while creating your account. Please try again.';
                     }
                 }
             } else {
-                // Fallback session registration if database is initializing
-                $_SESSION['user_id'] = 999;
-                $_SESSION['user_name'] = $full_name;
-                $_SESSION['user_email'] = $email;
-                header('Location: shopping.php');
-                exit;
+                $error_msg = 'Unable to connect to the database. Please ensure MySQL is running in XAMPP.';
             }
         }
     }

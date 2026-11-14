@@ -17,6 +17,51 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $product = null;
 $images = [];
 $sizes = [];
+$cart_notification = '';
+
+// Cart Addition Flow (Pure PHP & HTML; Zero JavaScript)
+// When a user clicks "Add to Bag", do NOT automatically redirect them to cart.php.
+// Process the item addition into the session and display a clear notification/flash message on the page.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['cart_action'] ?? '') === 'add') {
+    $add_id        = (int)($_POST['product_id'] ?? $product_id);
+    $product_name  = trim($_POST['product_name'] ?? '');
+    $primary_image = trim($_POST['primary_image'] ?? '');
+    $quantity      = max(1, (int)($_POST['quantity'] ?? 1));
+
+    // Format: "SizeName|Price"
+    $size_package  = trim($_POST['selected_size_package'] ?? 'One Size|0');
+    $parts         = explode('|', $size_package);
+    $size_name     = $parts[0] ?? 'Standard';
+    $unit_price    = isset($parts[1]) ? (float)$parts[1] : 0.00;
+
+    if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
+        $_SESSION['cart'] = [];
+    }
+
+    $item_key = $add_id . '_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $size_name);
+
+    if (isset($_SESSION['cart'][$item_key])) {
+        $_SESSION['cart'][$item_key]['quantity'] += $quantity;
+    } else {
+        $_SESSION['cart'][$item_key] = [
+            'item_key'     => $item_key,
+            'product_id'   => $add_id,
+            'name'         => $product_name,
+            'size'         => $size_name,
+            'unit_price'   => $unit_price,
+            'quantity'     => $quantity,
+            'image'        => $primary_image
+        ];
+    }
+
+    // Redirect back to this product's detail page with flash confirmation
+    header('Location: product-detail.php?id=' . $add_id . '&added=1');
+    exit;
+}
+
+if (isset($_GET['added'])) {
+    $cart_notification = 'Product has been added to the bag.';
+}
 
 if ($pdo && $product_id > 0) {
     try {
@@ -87,6 +132,23 @@ require_once __DIR__ . '/header.php';
     <span>/</span>
     <span><?php echo htmlspecialchars($product['name']); ?></span>
   </nav>
+
+  <?php if (!empty($cart_notification)): ?>
+    <!-- Clear Notification / Flash Message upon Adding to Bag (Pure PHP Flash; Zero JavaScript) -->
+    <div class="alert alert-success" style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background-color: var(--mocha-dark); color: #fff; font-weight: bold; font-size: 0.9rem;">✓</span>
+        <div>
+          <strong style="font-size: 1.05rem;"><?php echo htmlspecialchars($cart_notification); ?></strong>
+          <span style="display: block; font-size: 0.85rem; color: var(--mocha-muted); margin-top: 0.15rem;">Item has been stored in your bag. Feel free to continue browsing our collections.</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.65rem;">
+        <a href="shopping.php" class="btn btn-sm btn-outline">Continue Browsing</a>
+        <a href="cart.php" class="btn btn-sm btn-primary">View Bag</a>
+      </div>
+    </div>
+  <?php endif; ?>
 
   <div class="product-detail-grid">
 
@@ -169,7 +231,7 @@ require_once __DIR__ . '/header.php';
       <?php endif; ?>
 
       <!-- Purchase Form (Pure HTML5 & PHP; Zero JavaScript) -->
-      <form method="POST" action="cart.php">
+      <form method="POST" action="product-detail.php?id=<?php echo (int)$product['id']; ?>">
         <input type="hidden" name="cart_action" value="add">
         <input type="hidden" name="product_id" value="<?php echo (int)$product['id']; ?>">
         <input type="hidden" name="product_name" value="<?php echo htmlspecialchars($product['name']); ?>">
@@ -197,7 +259,7 @@ require_once __DIR__ . '/header.php';
           </div>
 
           <button type="submit" class="btn btn-primary" style="flex: 1; height: 50px; font-size: 0.9rem;">
-            Add to Shopping Bag
+            Add to Bag
           </button>
         </div>
       </form>
